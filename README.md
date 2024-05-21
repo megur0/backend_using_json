@@ -1,39 +1,35 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+* このパッケージはpub.devに公開していないパッケージとなる
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+# バックエンドクラス(Json専用)の構成
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+![](./doc/svg/backend.drawio.svg)
 
-## Features
+* Jsonを前提としたバックエンドクラス
+* 呼び出し側はこの構成に準じることで下記のアプリケーション独自の実装に専念できるようにした
+    * モデル定義
+    * APIのエンドポイント
+    * APIごとのリクエスト内容の定義、モデルへの変換
+    * エラーハンドリング
+    * レスポンスのハンドリング
+* APIの呼び出しには以下のオブジェクトを引数として渡す必要がある。
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+    |オブジェクト|オブジェクトの内容|引数として渡すタイミング|
+    |-|-|-|
+    |HTTP GETコールバック|トークンとURLを受け取る<br/>ステータスコードとレスポンスボディを返す|コンストラクタ呼び出し時|
+    |HTTP POSTコールバック|トークンとURLとリクエストボディを受け取る<br/>ステータスコードとレスポンスボディを返す|コンストラクタ呼び出し時|
+    |リクエスト|抽象クラス(*1)を継承したもの。<br/>あるAPIのパスおよびリクエストに必要なプロパティを設定<br/>Jsonからオブジェクトへ変換するコンバータを設定|実行時|
+    |エラーハンドラー| HTTPコールバック、Jsonデコードを実行した時の例外のハンドリングをし、データとエラーを返す|コンストラクタ呼び出し時|
+    |レスポンスハンドラー|レスポンスコードとJsonとコンバータを受け取り、データとエラーを返す|コンストラクタ呼び出し時|
 
-## Getting started
+* *1 継承側がプロパティを取捨選択するため、インターフェースではなく抽象クラスとしている。
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
-```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## パスパラメータシンボル
+* パスパラメータとして置換させるためのシンボルのリスト
+* パスパラメータシンボルで指定されたシンボルは実行にパス内の同じ文字列を置換する。
+    * (例)
+    * パスパラメータシンボル: ["\<GROUP\>", "\<ID\>"]
+    * パス: "/comment/\<GROUP\>/\<ID\>"
+    * 実際のリクエスト
+        * パスパラメータ: ["board1", "15"]
+        * リクエストとして実行されるパス : "/comment/board1/15"
