@@ -58,6 +58,7 @@ class BackendUsingJson {
     int statusCode,
     Map<String, dynamic> responseBody,
     T Function(Map<String, dynamic> jsonMap)? fromJson,
+    Request<T> request,
   ) resultHandler;
 
   Future<Response<T>> request<T>(
@@ -84,7 +85,7 @@ class BackendUsingJson {
               await httpPost(request.token, url, request.body);
       }
       json = jsonDecode(responseBody);
-      result = resultHandler(statusCode, json, request.fromJson);
+      result = resultHandler(statusCode, json, request.fromJson, request);
     } catch (e, s) {
       if (errorHandler == null) {
         rethrow;
