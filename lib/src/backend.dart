@@ -34,6 +34,10 @@ abstract base class Request<T> {
   final Map<String, String>? query;
   final Map<String, dynamic>? body;
   final T Function(Map<String, dynamic> jsonMap)? fromJson;
+
+  @override
+  String toString() =>
+      '_${runtimeType.toString()}(${_getPathWithReplacedPathParamValue(this)})';
 }
 
 class BackendUsingJson {
@@ -95,22 +99,22 @@ class BackendUsingJson {
 
     return result;
   }
+}
 
-  // パスに含まれるすべてのパスパラメータを値に置換した文字列返す。
-  String _getPathWithReplacedPathParamValue(Request request) {
-    assert((request.pathParamSymbols == null && request.pathParam == null) ||
-        (request.pathParamSymbols != null && request.pathParam != null));
-    if (request.pathParamSymbols == null) {
-      return request.path;
-    }
-    assert(request.pathParamSymbols!.length == request.pathParam!.length);
-    String after = request.path;
-    for (int i = 0; i < request.pathParamSymbols!.length; i++) {
-      after =
-          after.replaceAll(request.pathParamSymbols![i], request.pathParam![i]);
-    }
-    return after;
+// パスに含まれるすべてのパスパラメータを値に置換した文字列返す。
+String _getPathWithReplacedPathParamValue(Request request) {
+  assert((request.pathParamSymbols == null && request.pathParam == null) ||
+      (request.pathParamSymbols != null && request.pathParam != null));
+  if (request.pathParamSymbols == null) {
+    return request.path;
   }
+  assert(request.pathParamSymbols!.length == request.pathParam!.length);
+  String after = request.path;
+  for (int i = 0; i < request.pathParamSymbols!.length; i++) {
+    after =
+        after.replaceAll(request.pathParamSymbols![i], request.pathParam![i]);
+  }
+  return after;
 }
 
 Uri _getUrl(String endpoint, String path, Map<String, String> query) {
