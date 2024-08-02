@@ -7,7 +7,7 @@ enum RequestType {
   post,
 }
 
-typedef Response<T> = ({List<T> data, Object? error});
+typedef Response<T, E> = ({List<T> data, E? error});
 
 @immutable
 abstract base class Request<T> {
@@ -40,7 +40,7 @@ abstract base class Request<T> {
       '_${runtimeType.toString()}(${_getPathWithReplacedPathParamValue(this)})';
 }
 
-class BackendUsingJson {
+class BackendUsingJson<E> {
   BackendUsingJson({
     required this.httpGet,
     required this.httpPost,
@@ -58,16 +58,16 @@ class BackendUsingJson {
   final Future<(int statusCode, String responseBody)> Function(
       String token, Uri url, Map<String, dynamic>? body) httpPost;
 
-  final Response<T> Function<T>(
+  final Response<T, E> Function<T>(
     int statusCode,
     Map<String, dynamic> responseBody,
     T Function(Map<String, dynamic> jsonMap)? fromJson,
     Request<T> request,
   ) resultHandler;
 
-  Future<Response<T>> request<T>(
+  Future<Response<T, E>> request<T>(
       Request<T> request,
-      Response<T> Function<T>(Object? error, StackTrace? stackTrace)?
+      Response<T, E> Function<T>(Object? error, StackTrace? stackTrace)?
           errorHandler) async {
     final url = _getUrl(endpoint, _getPathWithReplacedPathParamValue(request),
         request.query ?? {});
@@ -75,7 +75,7 @@ class BackendUsingJson {
     late final int statusCode;
     late final String responseBody;
     late final Map<String, dynamic> json;
-    late final Response<T> result;
+    late final Response<T, E> result;
 
     try {
       switch (request.type) {

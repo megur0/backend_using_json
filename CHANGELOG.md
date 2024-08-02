@@ -1,3 +1,4 @@
 ## 0.0.1
-
-* TODO: Describe initial release.
+* 作成
+## 0.1.0
+* エラーをObject型からジェネリクスへ変更
