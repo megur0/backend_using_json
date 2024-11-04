@@ -68,7 +68,13 @@ class BackendUsingJson<E> {
   Future<Response<T, E>> request<T>(
       Request<T> request,
       Response<T, E> Function<T>(Object? error, StackTrace? stackTrace)?
-          errorHandler) async {
+          errorHandler,
+      {Response<T, E> Function<T>(
+        int statusCode,
+        Map<String, dynamic> responseBody,
+        T Function(Map<String, dynamic> jsonMap)? fromJson,
+        Request<T> request,
+      )? resultHandler}) async {
     final url = _getUrl(endpoint, _getPathWithReplacedPathParamValue(request),
         request.query ?? {});
 
@@ -89,7 +95,12 @@ class BackendUsingJson<E> {
               await httpPost(request.token, url, request.body);
       }
       json = jsonDecode(responseBody);
-      result = resultHandler(statusCode, json, request.fromJson, request);
+      if (resultHandler != null) {
+        result = resultHandler(statusCode, json, request.fromJson, request);
+      } else {
+        result = this.resultHandler(statusCode, json, request.fromJson, request);
+      }
+      
     } catch (e, s) {
       if (errorHandler == null) {
         rethrow;
